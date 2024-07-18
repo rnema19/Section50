@@ -19,6 +19,10 @@ app.set('views',path.join(__dirname,'./views'))
 // app.set('views','views')
 app.use(express.urlencoded({extended:true}))
 
+app.get('/',(req,res)=>{
+    res.send('This is the home page!')
+})
+
 app.get('/register',(req,res)=>{
     res.render('register')
 })
