@@ -57,6 +57,23 @@ app.post("/register", async (req, res) => {
     }
 })
 
+app.get('/login',(req,res)=>{
+    res.render('login')
+})
+
+app.post('/login',async (req,res)=>{
+    const {username,password} = req.body
+    const user = await User.findOne({username})
+    const match = await bcrypt.compare(password, user.password);
+    if(match){
+        res.send("Login Successful!!")
+    }
+    else{
+        res.send("Invalid Credentials!!")
+        // res.redirect('login')
+    }
+})
+
 app.get('/secret',(req,res)=>{
     res.send("No access as it's a secret!")
 })
