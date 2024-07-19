@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 const bcrypt = require('bcrypt');
 var bodyParser = require('body-parser')
+const session = require('express-session');
 
 mongoose.connect('mongodb://localhost:27017/loginDemo')
     .then(() => {
@@ -50,6 +51,7 @@ app.post("/register", async (req, res) => {
         user.password = hashedPassword;
         await user.save();
         console.log(hashedPassword)
+        req.session.user_id = user._id
         res.redirect("/");
     } catch (e) {
         console.error(e);
@@ -67,6 +69,7 @@ app.post('/login',async (req,res)=>{
     const match = await bcrypt.compare(password, user.password);
     if(match){
         res.send("Login Successful!!")
+        req.session.user_id = user._id
     }
     else{
         res.send("Invalid Credentials!!")
