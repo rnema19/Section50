@@ -20,6 +20,7 @@ app.set('view engine','ejs')
 app.set('views',path.join(__dirname,'./views'))
 // app.set('views','views')
 app.use(express.urlencoded({extended:true}))
+app.use(session({resave: true, saveUninitialized: true,secret: 'trolololo' }));
 app.use(bodyParser.urlencoded({ extended: true }))
 
 app.get('/',(req,res)=>{
@@ -51,7 +52,8 @@ app.post("/register", async (req, res) => {
         user.password = hashedPassword;
         await user.save();
         console.log(hashedPassword)
-        req.session.user_id = user._id
+        // req.session.save
+        req.sessionID = user._id
         res.redirect("/");
     } catch (e) {
         console.error(e);
@@ -68,8 +70,10 @@ app.post('/login',async (req,res)=>{
     const user = await User.findOne({username})
     const match = await bcrypt.compare(password, user.password);
     if(match){
+        // req.session.save
+        req.sessionID = user._id
         res.send("Login Successful!!")
-        req.session.user_id = user._id
+        
     }
     else{
         res.send("Invalid Credentials!!")
@@ -78,6 +82,9 @@ app.post('/login',async (req,res)=>{
 })
 
 app.get('/secret',(req,res)=>{
+    if(!req.sessionID){
+        res.redirect('/login')
+    }
     res.send("No access as it's a secret!")
 })
 
