@@ -49,6 +49,7 @@ app.post("/register", async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 12);
         user.password = hashedPassword;
         await user.save();
+        console.log(hashedPassword)
         res.redirect("/");
     } catch (e) {
         console.error(e);
