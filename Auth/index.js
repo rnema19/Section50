@@ -23,6 +23,13 @@ app.use(express.urlencoded({extended:true}))
 app.use(session({resave: true, saveUninitialized: true,secret: 'trolololo' }));
 app.use(bodyParser.urlencoded({ extended: true }))
 
+const requireLogin = (req,res,next) => {
+    if(!req.sessionID){
+        res.redirect('/login')
+    }
+    next()
+}
+
 app.get('/',(req,res)=>{
     res.send('This is the home page!')
 })
@@ -67,11 +74,12 @@ app.get('/login',(req,res)=>{
 
 app.post('/login',async (req,res)=>{
     const {username,password} = req.body
-    const user = await User.findOne({username})
-    const match = await bcrypt.compare(password, user.password);
+    // const user = await User.findOne({username})
+    // const match = await bcrypt.compare(password, user.password);
+    const match = await User.findAndValidate(username,password)
     if(match){
         // req.session.save
-        req.sessionID = user._id
+        req.sessionID = match._id
         res.send("Login Successful!!")
         
     }
@@ -81,11 +89,21 @@ app.post('/login',async (req,res)=>{
     }
 })
 
-app.get('/secret',(req,res)=>{
-    if(!req.sessionID){
-        res.redirect('/login')
-    }
-    res.send("No access as it's a secret!")
+app.post('/logout',(req,res)=>{
+    // req.sessionID = null
+    req.session.destroy()
+    res.redirect('/login')
+})
+
+app.get('/secret',requireLogin,(req,res)=>{
+    // if(!req.sessionID){
+    //    return res.redirect('/login')
+    // }
+    res.render('secret')
+})
+
+app.get('/topsecret',requireLogin,(req,res)=>{
+    res.send("TOP SECRET!")
 })
 
 app.listen(3000,()=>{

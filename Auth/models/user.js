@@ -12,4 +12,10 @@ const userSchema = new mongoose.Schema({
     }
 })
 
+userSchema.statics.findAndValidate = async (username,password) => {
+    const foundUser = await this.findOne({username})
+    const match = await bcrypt.compare(password,foundUser.password)
+    return match?foundUser : false
+}
+
 module.exports = mongoose.model('User',userSchema)
